@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import 'auth_wrapper.dart';
 import 'firebase_options.dart';
 import 'providers/auth_provider.dart';
-
+import 'providers/cart_provider.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/register_screen.dart';
 import 'screens/home/home_screen.dart';
@@ -28,7 +28,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => AuthProvider())],
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => CartProvider()),
+      ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
 
