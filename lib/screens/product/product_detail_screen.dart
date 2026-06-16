@@ -107,6 +107,38 @@ class ProductDetailScreen extends StatelessWidget {
                     const SizedBox(height: 12),
 
                     /// PRICE
+                    Text(
+                      currency.format(product.price),
+                      style: const TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFFE3350D),
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    /// RATING + STOCK
+                    Row(
+                      children: [
+                        const Icon(Icons.star, color: Colors.amber),
+
+                        const SizedBox(width: 4),
+
+                        const Text(
+                          "4.9",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+
+                        const SizedBox(width: 20),
+                      ],
+                    ),
+
+                    const SizedBox(height: 30),
+
+                    const Divider(),
+
+                    const SizedBox(height: 20),
                   ],
                 ),
               ),
