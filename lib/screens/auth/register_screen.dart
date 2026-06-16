@@ -62,7 +62,41 @@ class _RegisterScreenState extends State<RegisterScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
-          child: Column(children: [const SizedBox(height: 20)]),
+          child: Column(
+            children: [
+              const SizedBox(height: 20),
+
+              Container(
+                width: 120,
+                height: 120,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      blurRadius: 15,
+                      color: Colors.black.withOpacity(0.08),
+                    ),
+                  ],
+                ),
+
+                child: ClipOval(
+                  child: Image.asset('assets/pokeball.png', fit: BoxFit.cover),
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              const Text(
+                "Pokemon Marketplace",
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFFE3350D),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
