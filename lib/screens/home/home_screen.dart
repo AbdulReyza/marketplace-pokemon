@@ -127,8 +127,33 @@ class HomeScreen extends StatelessWidget {
             ),
 
             const SizedBox(height: 12),
+
+            GridView.count(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              crossAxisCount: 2,
+              mainAxisSpacing: 16,
+              crossAxisSpacing: 16,
+              childAspectRatio: 0.78,
+              children: const [
+                PokemonCard(name: "Pikachu", price: "\$120", emoji: "⚡"),
+                PokemonCard(name: "Charizard", price: "\$500", emoji: "🔥"),
+                PokemonCard(name: "Blastoise", price: "\$350", emoji: "💧"),
+                PokemonCard(name: "Venusaur", price: "\$300", emoji: "🌿"),
+              ],
+            ),
           ],
         ),
+      ),
+
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: 0,
+        destinations: const [
+          NavigationDestination(icon: Icon(Icons.home), label: "Home"),
+          NavigationDestination(icon: Icon(Icons.favorite), label: "Wishlist"),
+          NavigationDestination(icon: Icon(Icons.shopping_cart), label: "Cart"),
+          NavigationDestination(icon: Icon(Icons.person), label: "Profile"),
+        ],
       ),
     );
   }
