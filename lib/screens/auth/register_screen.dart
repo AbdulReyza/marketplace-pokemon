@@ -52,4 +52,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ),
     );
   }
+
+  @override
+  Widget build(BuildContext context) {
+    final provider = context.watch<AuthProvider>();
+  }
 }
