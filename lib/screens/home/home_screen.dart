@@ -74,7 +74,14 @@ class HomeScreen extends StatelessWidget {
                   colors: [Color(0xFFE3350D), Color(0xFF3B82F6)],
                 ),
               ),
-          
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                 
+                ),
+              ),
             ),
 
         
