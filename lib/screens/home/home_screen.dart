@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../services/auth_service.dart';
+
 import '../../providers/auth_provider.dart';
-import '../../models/product_model.dart';
+import '../../services/auth_service.dart';
 import '../../services/product_service.dart';
+import '../../models/product_model.dart';
+
 import '../../widgets/product_card.dart';
+
 import '../product/product_detail_screen.dart';
+import '../cart/cart_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -95,12 +99,12 @@ class HomeScreen extends StatelessWidget {
                   colors: [Color(0xFFE3350D), Color(0xFF3B82F6)],
                 ),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(24),
+              child: const Padding(
+                padding: EdgeInsets.all(24),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
+                  children: [
                     Text(
                       "Special Pokemon Sale",
                       style: TextStyle(
@@ -129,9 +133,9 @@ class HomeScreen extends StatelessWidget {
 
             const SizedBox(height: 12),
 
-            Row(
+            const Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: const [
+              children: [
                 CategoryItem(icon: Icons.catching_pokemon, label: "Pokemon"),
                 CategoryItem(icon: Icons.style, label: "Cards"),
                 CategoryItem(icon: Icons.toys, label: "Figures"),
@@ -141,7 +145,7 @@ class HomeScreen extends StatelessWidget {
 
             const SizedBox(height: 28),
 
-            /// Featured
+            /// Featured Products
             const Text(
               "Featured Pokemon",
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
@@ -211,6 +215,31 @@ class HomeScreen extends StatelessWidget {
 
       bottomNavigationBar: NavigationBar(
         selectedIndex: 0,
+        onDestinationSelected: (index) {
+          switch (index) {
+            case 0:
+              break;
+
+            case 1:
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Wishlist belum dibuat')),
+              );
+              break;
+
+            case 2:
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const CartScreen()),
+              );
+              break;
+
+            case 3:
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Profile belum dibuat')),
+              );
+              break;
+          }
+        },
         destinations: const [
           NavigationDestination(icon: Icon(Icons.home), label: "Home"),
           NavigationDestination(icon: Icon(Icons.favorite), label: "Wishlist"),
@@ -238,7 +267,7 @@ class CategoryItem extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(18),
-            boxShadow: [BoxShadow(blurRadius: 10, color: Colors.black12)],
+            boxShadow: const [BoxShadow(blurRadius: 10, color: Colors.black12)],
           ),
           child: Icon(icon, color: const Color(0xFFE3350D)),
         ),
