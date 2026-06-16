@@ -66,6 +66,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             children: [
               const SizedBox(height: 20),
 
+              /// LOGO PLACEHOLDER
               Container(
                 width: 120,
                 height: 120,
@@ -93,6 +94,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFFE3350D),
+                ),
+              ),
+
+              const SizedBox(height: 8),
+
+              Text("Bikin akun", style: TextStyle(color: Colors.grey.shade600)),
+
+              const SizedBox(height: 40),
+
+              Card(
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(24),
                 ),
               ),
             ],
