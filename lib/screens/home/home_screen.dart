@@ -108,7 +108,26 @@ class HomeScreen extends StatelessWidget {
 
             const SizedBox(height: 12),
 
-          
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: const [
+                CategoryItem(icon: Icons.catching_pokemon, label: "Pokemon"),
+                CategoryItem(icon: Icons.style, label: "Cards"),
+                CategoryItem(icon: Icons.toys, label: "Figures"),
+                CategoryItem(icon: Icons.backpack, label: "Items"),
+              ],
+            ),
+
+            const SizedBox(height: 28),
+
+            /// Featured
+            const Text(
+              "Featured Pokemon",
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            ),
+
+            const SizedBox(height: 12),
+          ],
         ),
       ),
     );
