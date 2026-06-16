@@ -62,6 +62,51 @@ class ProductDetailScreen extends StatelessWidget {
             ],
           ),
 
+          SliverToBoxAdapter(
+            child: Container(
+              margin: const EdgeInsets.only(top: 8),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    /// CATEGORY
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE3350D).withOpacity(.1),
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      child: Text(
+                        product.category,
+                        style: const TextStyle(
+                          color: Color(0xFFE3350D),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    /// PRODUCT NAME
+                    Text(
+                      product.name,
+                      style: const TextStyle(
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    /// PRICE
                   ],
                 ),
               ),
