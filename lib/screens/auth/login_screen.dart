@@ -86,6 +86,24 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
 
               const SizedBox(height: 20),
+
+              const Text(
+                "Pokemon Marketplace",
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFFE3350D),
+                ),
+              ),
+
+              const SizedBox(height: 8),
+
+              Text(
+                "Selamat datang kembali",
+                style: TextStyle(color: Colors.grey.shade600),
+              ),
+
+              const SizedBox(height: 40),
             ],
           ),
         ),
