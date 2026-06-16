@@ -135,6 +135,21 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
 
                       const SizedBox(height: 28),
+
+                      SizedBox(
+                        width: double.infinity,
+                        height: 55,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFFE3350D), Color(0xFF3B82F6)],
+                            ),
+                          ),
+                      
+                      ),
+
+                
                     ],
                   ),
                 ),
