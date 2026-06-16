@@ -163,6 +163,17 @@ class ProductDetailScreen extends StatelessWidget {
                     const Divider(),
 
                     const SizedBox(height: 20),
+
+                    /// DETAILS
+                    const Text(
+                      "Pokemon Details",
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
+                    const SizedBox(height: 14),
                   ],
                 ),
               ),
