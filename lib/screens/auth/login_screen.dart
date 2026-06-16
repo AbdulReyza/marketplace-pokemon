@@ -99,7 +99,7 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 8),
 
               Text(
-                "Welcome Back Trainer!",
+                "Selamat datang kembali",
                 style: TextStyle(color: Colors.grey.shade600),
               ),
 
