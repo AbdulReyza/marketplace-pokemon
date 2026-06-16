@@ -142,6 +142,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
 
                       const SizedBox(height: 28),
+
+                      SizedBox(
+                        width: double.infinity,
+                        height: 55,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFFE3350D), Color(0xFF3B82F6)],
+                            ),
+                          ),
+                          child: ElevatedButton(
+                            onPressed: provider.isLoading ? null : register,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.transparent,
+                              shadowColor: Colors.transparent,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            ),
+                            child: provider.isLoading,
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
