@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../services/auth_service.dart';
 import '../../providers/auth_provider.dart';
+import '../../models/product_model.dart';
+import '../../services/product_service.dart';
+import '../../widgets/product_card.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -145,19 +148,50 @@ class HomeScreen extends StatelessWidget {
 
             const SizedBox(height: 12),
 
-            GridView.count(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: 2,
-              mainAxisSpacing: 16,
-              crossAxisSpacing: 16,
-              childAspectRatio: 0.78,
-              children: const [
-                PokemonCard(name: "Pikachu", price: "\$120", emoji: "⚡"),
-                PokemonCard(name: "Charizard", price: "\$500", emoji: "🔥"),
-                PokemonCard(name: "Blastoise", price: "\$350", emoji: "💧"),
-                PokemonCard(name: "Venusaur", price: "\$300", emoji: "🌿"),
-              ],
+            StreamBuilder<List<ProductModel>>(
+              stream: ProductService().getProducts(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(24),
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                }
+
+                if (snapshot.hasError) {
+                  return Center(child: Text("Error: ${snapshot.error}"));
+                }
+
+                if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(24),
+                      child: Text("No Pokemon Cards Found"),
+                    ),
+                  );
+                }
+
+                final products = snapshot.data!;
+
+                return GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: products.length,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 16,
+                    crossAxisSpacing: 16,
+                    childAspectRatio: 0.68,
+                  ),
+                  itemBuilder: (context, index) {
+                    final product = products[index];
+
+                    return ProductCard(product: product, onTap: () {});
+                  },
+                );
+              },
             ),
           ],
         ),
