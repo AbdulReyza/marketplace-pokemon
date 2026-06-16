@@ -56,5 +56,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<AuthProvider>();
+
+    return Scaffold(
+      backgroundColor: const Color(0xFFF5F7FA),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Column(children: [const SizedBox(height: 20)]),
+        ),
+      ),
+    );
   }
 }
