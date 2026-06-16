@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-
+import 'package:provider/provider.dart';
+import '../../providers/cart_provider.dart';
 import '../../models/product_model.dart';
 
 class ProductDetailScreen extends StatelessWidget {
@@ -231,7 +232,15 @@ class ProductDetailScreen extends StatelessWidget {
                     ),
                   ),
                   child: ElevatedButton.icon(
-                    onPressed: () {},
+                    onPressed: () {
+                      context.read<CartProvider>().addToCart(product);
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('${product.name} added to cart'),
+                        ),
+                      );
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.transparent,
                       shadowColor: Colors.transparent,
