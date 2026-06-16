@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
+import '../../services/auth_service.dart';
 import '../../providers/auth_provider.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -34,9 +34,26 @@ class HomeScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             /// Greeting
-            const Text(
-              "Welcome Trainer",
-              style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+            FutureBuilder(
+              future: AuthService().getCurrentUserData(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const Text(
+                    "Welcome Trainer",
+                    style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+                  );
+                }
+
+                final userData = snapshot.data as Map<String, dynamic>;
+
+                return Text(
+                  "Welcome ${userData['name']}",
+                  style: const TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                  ),
+                );
+              },
             ),
 
             const SizedBox(height: 6),
