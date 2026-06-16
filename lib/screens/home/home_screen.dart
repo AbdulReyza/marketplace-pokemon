@@ -158,3 +158,76 @@ class HomeScreen extends StatelessWidget {
     );
   }
 }
+
+class CategoryItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+
+  const CategoryItem({super.key, required this.icon, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          width: 65,
+          height: 65,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(18),
+            boxShadow: [BoxShadow(blurRadius: 10, color: Colors.black12)],
+          ),
+          child: Icon(icon, color: const Color(0xFFE3350D)),
+        ),
+        const SizedBox(height: 8),
+        Text(label),
+      ],
+    );
+  }
+}
+
+class PokemonCard extends StatelessWidget {
+  final String name;
+  final String price;
+  final String emoji;
+
+  const PokemonCard({
+    super.key,
+    required this.name,
+    required this.price,
+    required this.emoji,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [BoxShadow(blurRadius: 10, color: Colors.black12)],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(emoji, style: const TextStyle(fontSize: 50)),
+            const SizedBox(height: 12),
+            Text(
+              name,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              price,
+              style: const TextStyle(
+                color: Color(0xFFE3350D),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
