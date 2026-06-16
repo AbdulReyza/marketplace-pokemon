@@ -98,7 +98,15 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
 
-        
+            const SizedBox(height: 28),
+
+            /// Categories
+            const Text(
+              "Categories",
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            ),
+
+            const SizedBox(height: 12),
 
           
         ),
