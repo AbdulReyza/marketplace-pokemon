@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
+import '../checkout/checkout_screen.dart';
 import '../../services/cart_services.dart';
 
 class CartScreen extends StatelessWidget {
@@ -236,10 +236,43 @@ class CartScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(16),
                         ),
                       ),
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text("Checkout coming soon!"),
+                      onPressed: () async {
+                        final cartDocs = snapshot.data!.docs;
+
+                        List<Map<String, dynamic>> items = [];
+
+                        int total = 0;
+
+                        for (var doc in cartDocs) {
+                          final cartData = doc.data();
+
+                          final productDoc = await FirebaseFirestore.instance
+                              .collection('products')
+                              .doc(cartData['productId'])
+                              .get();
+
+                          final product = productDoc.data()!;
+
+                          final price = (product['price'] ?? 0) as num;
+                          final quantity = (cartData['quantity'] ?? 0) as num;
+
+                          total += price.toInt() * quantity.toInt();
+                          items.add({
+                            'productId': cartData['productId'],
+                            'name': product['name'],
+                            'price': product['price'],
+                            'quantity': quantity,
+                            'image': product['image'],
+                          });
+                        }
+
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => CheckoutScreen(
+                              items: items,
+                              totalAmount: total,
+                            ),
                           ),
                         );
                       },
