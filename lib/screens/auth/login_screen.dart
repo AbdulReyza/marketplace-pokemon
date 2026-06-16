@@ -66,6 +66,26 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 30),
 
               /// LOGO PLACEHOLDER
+              Container(
+                width: 120,
+                height: 120,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      blurRadius: 15,
+                      color: Colors.black.withOpacity(0.08),
+                    ),
+                  ],
+                ),
+
+                child: ClipOval(
+                  child: Image.asset('assets/pokeball.png', fit: BoxFit.cover),
+                ),
+              ),
+
+              const SizedBox(height: 20),
             ],
           ),
         ),
