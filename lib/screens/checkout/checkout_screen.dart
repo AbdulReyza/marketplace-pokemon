@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../services/order_service.dart';
+import '../../services/cart_services.dart';
 
 class CheckoutScreen extends StatelessWidget {
   final List<Map<String, dynamic>> items;
@@ -74,6 +76,42 @@ class CheckoutScreen extends StatelessWidget {
                     ),
                   ),
                 ],
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            SizedBox(
+              width: double.infinity,
+              height: 55,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFE3350D),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                onPressed: () async {
+                  final orderId = await OrderService().createOrder(
+                    items: items,
+                    totalAmount: totalAmount,
+                  );
+
+                  await CartService().clearCart();
+
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Order Created: $orderId")),
+                    );
+                  }
+                },
+                child: const Text(
+                  "Pay With Pokemon Wallet",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ),
           ],
