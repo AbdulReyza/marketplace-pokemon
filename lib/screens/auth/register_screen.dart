@@ -108,6 +108,43 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(24),
                 ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    children: [
+                      TextField(
+                        controller: nameController,
+                        decoration: inputDecoration(
+                          label: "Trainer Name",
+                          icon: Icons.person,
+                        ),
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      TextField(
+                        controller: emailController,
+                        decoration: inputDecoration(
+                          label: "Email",
+                          icon: Icons.email,
+                        ),
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      TextField(
+                        controller: passwordController,
+                        obscureText: true,
+                        decoration: inputDecoration(
+                          label: "Password",
+                          icon: Icons.lock,
+                        ),
+                      ),
+
+                      const SizedBox(height: 28),
+                    ],
+                  ),
+                ),
               ),
             ],
           ),
