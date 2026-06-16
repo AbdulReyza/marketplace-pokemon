@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
-import '../../providers/cart_provider.dart';
+
 import '../../models/product_model.dart';
+import '../../services/cart_services.dart';
 
 class ProductDetailScreen extends StatelessWidget {
   final ProductModel product;
@@ -232,8 +232,8 @@ class ProductDetailScreen extends StatelessWidget {
                     ),
                   ),
                   child: ElevatedButton.icon(
-                    onPressed: () {
-                      context.read<CartProvider>().addToCart(product);
+                    onPressed: () async {
+                      await CartService().addToCart(product.id);
 
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(

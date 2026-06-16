@@ -1,22 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-import '../../providers/cart_provider.dart';
+import '../../services/cart_services.dart';
 
 class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final cartProvider = context.watch<CartProvider>();
-
-    final currency = NumberFormat.currency(
-      locale: 'id_ID',
-      symbol: 'Rp ',
-      decimalDigits: 0,
-    );
-
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
@@ -26,135 +17,98 @@ class CartScreen extends StatelessWidget {
           style: TextStyle(color: Colors.white),
         ),
       ),
-      body: cartProvider.items.isEmpty
-          ? const Center(
+      body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+        stream: CartService().getCartItems(),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Center(child: Text("Error: ${snapshot.error}"));
+          }
+
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          final docs = snapshot.data!.docs;
+
+          if (docs.isEmpty) {
+            return const Center(
               child: Text("Your cart is empty", style: TextStyle(fontSize: 18)),
-            )
-          : Column(
-              children: [
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: cartProvider.items.length,
-                    itemBuilder: (context, index) {
-                      final item = cartProvider.items[index];
+            );
+          }
 
-                      return Card(
-                        margin: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Row(
-                            children: [
-                              Image.network(
-                                item.product.image,
-                                width: 80,
-                                height: 80,
-                                fit: BoxFit.contain,
-                              ),
+          return ListView.builder(
+            itemCount: docs.length,
+            itemBuilder: (context, index) {
+              final data = docs[index].data();
 
-                              const SizedBox(width: 12),
+              return FutureBuilder<DocumentSnapshot>(
+                future: FirebaseFirestore.instance
+                    .collection('products')
+                    .doc(data['productId'])
+                    .get(),
+                builder: (context, productSnapshot) {
+                  if (!productSnapshot.hasData) {
+                    return const Card(
+                      child: Padding(
+                        padding: EdgeInsets.all(16),
+                        child: CircularProgressIndicator(),
+                      ),
+                    );
+                  }
 
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      item.product.name,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      ),
-                                    ),
+                  final productData =
+                      productSnapshot.data!.data() as Map<String, dynamic>;
 
-                                    const SizedBox(height: 4),
-
-                                    Text(currency.format(item.product.price)),
-                                  ],
-                                ),
-                              ),
-
-                              Row(
-                                children: [
-                                  IconButton(
-                                    onPressed: () {
-                                      cartProvider.decreaseQuantity(
-                                        item.product.id,
-                                      );
-                                    },
-                                    icon: const Icon(Icons.remove),
-                                  ),
-
-                                  Text(item.quantity.toString()),
-
-                                  IconButton(
-                                    onPressed: () {
-                                      cartProvider.increaseQuantity(
-                                        item.product.id,
-                                      );
-                                    },
-                                    icon: const Icon(Icons.add),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(blurRadius: 10, color: Colors.black12),
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  return Card(
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Row(
                         children: [
-                          const Text(
-                            "Total",
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
+                          Image.network(
+                            productData['image'],
+                            width: 80,
+                            height: 80,
+                            fit: BoxFit.contain,
                           ),
-                          Text(
-                            currency.format(cartProvider.totalPrice),
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFFE3350D),
+
+                          const SizedBox(width: 12),
+
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  productData['name'],
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+
+                                const SizedBox(height: 6),
+
+                                Text("Rp ${productData['price']}"),
+
+                                const SizedBox(height: 6),
+
+                                Text("Qty: ${data['quantity']}"),
+                              ],
                             ),
                           ),
                         ],
                       ),
-
-                      const SizedBox(height: 16),
-
-                      SizedBox(
-                        width: double.infinity,
-                        height: 50,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFE3350D),
-                          ),
-                          onPressed: () {},
-                          child: const Text("Checkout"),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+                    ),
+                  );
+                },
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }

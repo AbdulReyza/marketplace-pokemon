@@ -31,13 +31,23 @@ class CartProvider extends ChangeNotifier {
       };
     }).toList();
 
-    await prefs.setString('cart', jsonEncode(cartData));
+    final cartJson = jsonEncode(cartData);
+
+    print("========== SAVE CART ==========");
+    print(cartJson);
+    print("================================");
+
+    await prefs.setString('cart', cartJson);
   }
 
   Future<void> loadCart() async {
     final prefs = await SharedPreferences.getInstance();
 
     final cartString = prefs.getString('cart');
+
+    print("========== LOAD CART ==========");
+    print(cartString);
+    print("================================");
 
     if (cartString == null) return;
 
