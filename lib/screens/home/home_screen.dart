@@ -28,7 +28,26 @@ class HomeScreen extends StatelessWidget {
         ],
       ),
 
-    
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            /// Greeting
+            const Text(
+              "Welcome Trainer",
+              style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+            ),
+
+            const SizedBox(height: 6),
+
+            Text(
+              "Catch the best deals today",
+              style: TextStyle(color: Colors.grey.shade600),
+            ),
+
+            const SizedBox(height: 20),
+
       
 
          
