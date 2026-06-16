@@ -79,7 +79,21 @@ class HomeScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
-                 
+                  children: const [
+                    Text(
+                      "Special Pokemon Sale",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      "Get rare cards with up to 50% OFF",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ],
                 ),
               ),
             ),
