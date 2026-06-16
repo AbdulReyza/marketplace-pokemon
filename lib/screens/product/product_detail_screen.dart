@@ -131,6 +131,30 @@ class ProductDetailScreen extends StatelessWidget {
                         ),
 
                         const SizedBox(width: 20),
+
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: product.stock > 0
+                                ? Colors.green.withOpacity(.1)
+                                : Colors.red.withOpacity(.1),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            product.stock > 0
+                                ? "In Stock (${product.stock})"
+                                : "Out of Stock",
+                            style: TextStyle(
+                              color: product.stock > 0
+                                  ? Colors.green
+                                  : Colors.red,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
                       ],
                     ),
 
