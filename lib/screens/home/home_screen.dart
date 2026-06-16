@@ -48,7 +48,21 @@ class HomeScreen extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-      
+            /// Search
+            TextField(
+              decoration: InputDecoration(
+                hintText: "Search Pokemon, Cards, Items...",
+                prefixIcon: const Icon(Icons.search),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 20),
 
          
 
