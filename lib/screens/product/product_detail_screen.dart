@@ -199,6 +199,29 @@ class ProductDetailScreen extends StatelessWidget {
           ),
         ],
       ),
+
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: const BoxDecoration(color: Colors.white),
+        child: Row(
+          children: [
+            Container(
+              width: 55,
+              height: 55,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: const Color(0xFFE3350D)),
+              ),
+              child: const Icon(
+                Icons.favorite_border,
+                color: Color(0xFFE3350D),
+              ),
+            ),
+
+            const SizedBox(width: 12),
+          ],
+        ),
+      ),
     );
   }
 }
