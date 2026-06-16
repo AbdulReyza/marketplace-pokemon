@@ -99,7 +99,7 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 8),
 
               Text(
-                "Selamat datang kembali",
+                "Welcome Back Trainer!",
                 style: TextStyle(color: Colors.grey.shade600),
               ),
 
@@ -112,8 +112,18 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(20),
-                  child: Column(children: [
-                    
+                  child: Column(
+                    children: [
+                      TextField(
+                        controller: emailController,
+                        keyboardType: TextInputType.emailAddress,
+                        decoration: inputDecoration(
+                          label: "Email",
+                          icon: Icons.email_outlined,
+                        ),
+                      ),
+
+                      const SizedBox(height: 16),
                     ],
                   ),
                 ),
