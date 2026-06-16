@@ -8,6 +8,15 @@ class AuthService {
   User? get currentUser => _auth.currentUser;
 
   Stream<User?> get authStateChanges => _auth.authStateChanges();
+  Future<Map<String, dynamic>?> getCurrentUserData() async {
+    final user = _auth.currentUser;
+
+    if (user == null) return null;
+
+    final doc = await _firestore.collection('users').doc(user.uid).get();
+
+    return doc.data();
+  }
 
   Future<void> register({
     required String name,
