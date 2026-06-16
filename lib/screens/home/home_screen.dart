@@ -5,6 +5,7 @@ import '../../providers/auth_provider.dart';
 import '../../models/product_model.dart';
 import '../../services/product_service.dart';
 import '../../widgets/product_card.dart';
+import '../product/product_detail_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -188,7 +189,18 @@ class HomeScreen extends StatelessWidget {
                   itemBuilder: (context, index) {
                     final product = products[index];
 
-                    return ProductCard(product: product, onTap: () {});
+                    return ProductCard(
+                      product: product,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                ProductDetailScreen(product: product),
+                          ),
+                        );
+                      },
+                    );
                   },
                 );
               },
