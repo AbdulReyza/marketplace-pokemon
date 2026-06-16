@@ -64,7 +64,18 @@ class HomeScreen extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-         
+            /// Promo Banner
+            Container(
+              height: 180,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(24),
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFE3350D), Color(0xFF3B82F6)],
+                ),
+              ),
+          
+            ),
 
         
 
