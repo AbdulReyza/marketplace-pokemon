@@ -174,6 +174,24 @@ class ProductDetailScreen extends StatelessWidget {
                     ),
 
                     const SizedBox(height: 14),
+
+                    Container(
+                      padding: const EdgeInsets.all(18),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF5F7FA),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        product.description,
+                        style: TextStyle(
+                          color: Colors.grey.shade700,
+                          height: 1.7,
+                          fontSize: 15,
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 100),
                   ],
                 ),
               ),
