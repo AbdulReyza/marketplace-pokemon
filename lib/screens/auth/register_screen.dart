@@ -115,7 +115,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       TextField(
                         controller: nameController,
                         decoration: inputDecoration(
-                          label: "Trainer Name",
+                          label: "Nama Lengkap",
                           icon: Icons.person,
                         ),
                       ),
