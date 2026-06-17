@@ -24,7 +24,6 @@ class TransactionScreen extends StatelessWidget {
         stream: FirebaseFirestore.instance
             .collection('wallet_transactions')
             .where('uid', isEqualTo: uid)
-            .orderBy('createdAt', descending: true)
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {

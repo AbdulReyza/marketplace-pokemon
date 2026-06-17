@@ -5,7 +5,6 @@ class OrderService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
-
   Future<String> createOrder({
     required List<Map<String, dynamic>> items,
     required int totalAmount,
@@ -14,7 +13,7 @@ class OrderService {
       'userId': _auth.currentUser!.uid,
       'items': items,
       'totalAmount': totalAmount,
-      'status': 'pending',
+      'status': 'paid',
       'createdAt': Timestamp.now(),
     });
 
