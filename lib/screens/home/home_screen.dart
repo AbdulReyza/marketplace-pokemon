@@ -7,7 +7,7 @@ import '../../services/product_service.dart';
 import '../../models/product_model.dart';
 
 import '../../widgets/product_card.dart';
-
+import '../transactions/transaction_screen.dart';
 import '../product/product_detail_screen.dart';
 import '../cart/cart_screen.dart';
 
@@ -221,8 +221,9 @@ class HomeScreen extends StatelessWidget {
               break;
 
             case 1:
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Wishlist belum dibuat')),
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const TransactionScreen()),
               );
               break;
 
@@ -242,7 +243,10 @@ class HomeScreen extends StatelessWidget {
         },
         destinations: const [
           NavigationDestination(icon: Icon(Icons.home), label: "Home"),
-          NavigationDestination(icon: Icon(Icons.favorite), label: "Wishlist"),
+          NavigationDestination(
+            icon: Icon(Icons.receipt_long),
+            label: "Transactions",
+          ),
           NavigationDestination(icon: Icon(Icons.shopping_cart), label: "Cart"),
           NavigationDestination(icon: Icon(Icons.person), label: "Profile"),
         ],
