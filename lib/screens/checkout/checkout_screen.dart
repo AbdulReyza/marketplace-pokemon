@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../services/order_service.dart';
 import '../../services/cart_services.dart';
+import '../../services/wallet_service.dart';
 
 class CheckoutScreen extends StatelessWidget {
   final List<Map<String, dynamic>> items;
@@ -91,17 +92,38 @@ class CheckoutScreen extends StatelessWidget {
                   ),
                 ),
                 onPressed: () async {
-                  final orderId = await OrderService().createOrder(
-                    items: items,
-                    totalAmount: totalAmount,
-                  );
+                  try {
+                    final success = await WalletService().pay(totalAmount);
 
-                  await CartService().clearCart();
+                    if (!success) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("Saldo tidak cukup")),
+                        );
+                      }
+                      return;
+                    }
 
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("Order Created: $orderId")),
+                    final orderId = await OrderService().createOrder(
+                      items: items,
+                      totalAmount: totalAmount,
                     );
+
+                    await CartService().clearCart();
+
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text("Pembayaran berhasil • Order $orderId"),
+                        ),
+                      );
+
+                      Navigator.popUntil(context, (route) => route.isFirst);
+                    }
+                  } catch (e) {
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text(e.toString())));
                   }
                 },
                 child: const Text(
