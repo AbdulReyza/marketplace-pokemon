@@ -28,9 +28,18 @@ class AuthService {
       password: password,
     );
 
-    await _firestore.collection('users').doc(credential.user!.uid).set({
+    final uid = credential.user!.uid;
+
+    await _firestore.collection('users').doc(uid).set({
       'name': name,
       'email': email,
+      'createdAt': Timestamp.now(),
+    });
+
+    await _firestore.collection('wallets').doc(uid).set({
+      'balance': 0,
+      'pin': '123456',
+      'createdAt': Timestamp.now(),
     });
   }
 
