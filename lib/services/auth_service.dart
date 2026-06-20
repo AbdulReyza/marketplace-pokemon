@@ -19,7 +19,6 @@ class AuthService {
     return doc.data();
   }
 
-  // 🔥 REGISTER + EMAIL VERIFICATION
   Future<void> register({
     required String name,
     required String email,
@@ -35,7 +34,6 @@ class AuthService {
 
     await user.sendEmailVerification();
 
-    // simpan user ke firestore
     await _firestore.collection('users').doc(uid).set({
       'name': name,
       'email': email,
@@ -43,7 +41,6 @@ class AuthService {
       'createdAt': Timestamp.now(),
     });
 
-    // wallet
     await _firestore.collection('wallets').doc(uid).set({
       'balance': 0,
       'pin': '123456',
@@ -51,7 +48,6 @@ class AuthService {
     });
   }
 
-  // login make verif
   Future<void> login({required String email, required String password}) async {
     final credential = await _auth.signInWithEmailAndPassword(
       email: email,
