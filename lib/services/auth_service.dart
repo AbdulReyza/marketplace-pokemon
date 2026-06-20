@@ -8,6 +8,7 @@ class AuthService {
   User? get currentUser => _auth.currentUser;
 
   Stream<User?> get authStateChanges => _auth.authStateChanges();
+
   Future<Map<String, dynamic>?> getCurrentUserData() async {
     final user = _auth.currentUser;
 
@@ -18,6 +19,7 @@ class AuthService {
     return doc.data();
   }
 
+  // 🔥 REGISTER + EMAIL VERIFICATION
   Future<void> register({
     required String name,
     required String email,
@@ -28,14 +30,20 @@ class AuthService {
       password: password,
     );
 
-    final uid = credential.user!.uid;
+    final user = credential.user!;
+    final uid = user.uid;
 
+    await user.sendEmailVerification();
+
+    // simpan user ke firestore
     await _firestore.collection('users').doc(uid).set({
       'name': name,
       'email': email,
+      'isVerified': false,
       'createdAt': Timestamp.now(),
     });
 
+    // wallet
     await _firestore.collection('wallets').doc(uid).set({
       'balance': 0,
       'pin': '123456',
@@ -43,8 +51,21 @@ class AuthService {
     });
   }
 
+  // login make verif
   Future<void> login({required String email, required String password}) async {
-    await _auth.signInWithEmailAndPassword(email: email, password: password);
+    final credential = await _auth.signInWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+
+    final user = credential.user!;
+
+    await user.reload();
+
+    if (!user.emailVerified) {
+      await _auth.signOut();
+      throw Exception("Email belum diverifikasi, cek email dulu");
+    }
   }
 
   Future<void> logout() async {
