@@ -19,7 +19,7 @@ class _AuthVerificationScreenState extends State<AuthVerificationScreen> {
     await Future.delayed(const Duration(seconds: 1));
 
     if (pinController.text == "123456") {
-      widget.onVerified();
+      Navigator.pop(context, true);
     } else {
       ScaffoldMessenger.of(
         context,

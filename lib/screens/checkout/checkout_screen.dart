@@ -124,45 +124,53 @@ class CheckoutScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(16),
                   ),
                 ),
-                onPressed: () {
-                  Navigator.push(
+                onPressed: () async {
+                  final verified = await Navigator.push<bool>(
                     context,
                     MaterialPageRoute(
                       builder: (_) => AuthVerificationScreen(
-                        onVerified: () async {
-                          Navigator.pop(context);
-
-                          final pin = await showPinDialog(context);
-                          if (pin == null) return;
-
-                          final uid = FirebaseAuth.instance.currentUser!.uid;
-
-                          final walletDoc = await FirebaseFirestore.instance
-                              .collection('wallets')
-                              .doc(uid)
-                              .get();
-
-                          final walletData = walletDoc.data();
-
-                          if (walletData == null) return;
-
-                          if (walletData['pin'] != pin) return;
-
-                          final success = await WalletService().pay(
-                            totalAmount,
-                          );
-
-                          if (success) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text("Pembayaran berhasil"),
-                              ),
-                            );
-                          }
+                        onVerified: () {
+                          Navigator.pop(context, true);
                         },
                       ),
                     ),
                   );
+
+                  if (verified != true) return;
+                  if (verified != true) return;
+
+                  final pin = await showPinDialog(context);
+                  if (pin == null) return;
+
+                  final uid = FirebaseAuth.instance.currentUser!.uid;
+
+                  final walletDoc = await FirebaseFirestore.instance
+                      .collection('wallets')
+                      .doc(uid)
+                      .get();
+
+                  final walletData = walletDoc.data();
+
+                  if (walletData == null) return;
+
+                  if (walletData['pin'] != pin) {
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(const SnackBar(content: Text("PIN salah")));
+                    return;
+                  }
+
+                  final success = await WalletService().pay(totalAmount);
+
+                  if (!context.mounted) return;
+
+                  if (success) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Pembayaran berhasil")),
+                    );
+
+                    Navigator.popUntil(context, (route) => route.isFirst);
+                  }
                 },
                 child: const Text(
                   "Pay With Pokemon Wallet",
