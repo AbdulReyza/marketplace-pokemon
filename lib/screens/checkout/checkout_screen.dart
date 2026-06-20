@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../services/order_service.dart';
-import '../../services/cart_services.dart';
+import '../auth/otp_totp_authenticator.dart';
 import '../../services/wallet_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -125,75 +124,45 @@ class CheckoutScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(16),
                   ),
                 ),
-                onPressed: () async {
-                  try {
-                    final pin = await showPinDialog(context);
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => AuthVerificationScreen(
+                        onVerified: () async {
+                          Navigator.pop(context);
 
-                    if (pin == null) return;
+                          final pin = await showPinDialog(context);
+                          if (pin == null) return;
 
-                    final uid = FirebaseAuth.instance.currentUser!.uid;
+                          final uid = FirebaseAuth.instance.currentUser!.uid;
 
-                    final walletDoc = await FirebaseFirestore.instance
-                        .collection('wallets')
-                        .doc(uid)
-                        .get();
+                          final walletDoc = await FirebaseFirestore.instance
+                              .collection('wallets')
+                              .doc(uid)
+                              .get();
 
-                    final walletData = walletDoc.data();
+                          final walletData = walletDoc.data();
 
-                    if (walletData == null) {
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text("Wallet tidak ditemukan"),
-                          ),
-                        );
-                      }
-                      return;
-                    }
+                          if (walletData == null) return;
 
-                    if (walletData['pin'] != pin) {
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("PIN salah")),
-                        );
-                      }
-                      return;
-                    }
+                          if (walletData['pin'] != pin) return;
 
-                    final success = await WalletService().pay(totalAmount);
+                          final success = await WalletService().pay(
+                            totalAmount,
+                          );
 
-                    if (!success) {
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Saldo tidak cukup")),
-                        );
-                      }
-                      return;
-                    }
-
-                    final orderId = await OrderService().createOrder(
-                      items: items,
-                      totalAmount: totalAmount,
-                    );
-
-                    await CartService().clearCart();
-
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text("Pembayaran berhasil • Order $orderId"),
-                        ),
-                      );
-
-                      Navigator.popUntil(context, (route) => route.isFirst);
-                    }
-                  } catch (e) {
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(
-                        context,
-                      ).showSnackBar(SnackBar(content: Text(e.toString())));
-                    }
-                  }
+                          if (success) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("Pembayaran berhasil"),
+                              ),
+                            );
+                          }
+                        },
+                      ),
+                    ),
+                  );
                 },
                 child: const Text(
                   "Pay With Pokemon Wallet",
