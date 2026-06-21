@@ -2,9 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 class AuthVerificationScreen extends StatefulWidget {
-  final VoidCallback onVerified;
-
-  const AuthVerificationScreen({super.key, required this.onVerified});
+  const AuthVerificationScreen({super.key});
 
   @override
   State<AuthVerificationScreen> createState() => _AuthVerificationScreenState();
@@ -46,7 +44,7 @@ class _AuthVerificationScreenState extends State<AuthVerificationScreen> {
 
     await Future.delayed(const Duration(seconds: 1));
 
-    if (pinController.text.trim() == "123456") {
+    if (pinController.text.trim() == "254768") {
       Navigator.pop(context, true);
     } else {
       ScaffoldMessenger.of(
@@ -119,7 +117,7 @@ class _AuthVerificationScreenState extends State<AuthVerificationScreen> {
                         const SizedBox(height: 12),
 
                         const Text(
-                          "123456",
+                          "254768",
                           style: TextStyle(
                             color: Colors.greenAccent,
                             fontSize: 36,
@@ -193,7 +191,7 @@ class _AuthVerificationScreenState extends State<AuthVerificationScreen> {
                     ),
                     decoration: InputDecoration(
                       counterText: "",
-                      hintText: "123456",
+                      hintText: "254768",
                       filled: true,
                       fillColor: Colors.grey.shade100,
                       border: OutlineInputBorder(

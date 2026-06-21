@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../auth/otp_totp_authenticator.dart';
+import '../../services/cart_services.dart';
 import '../../services/wallet_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -13,6 +14,7 @@ class CheckoutScreen extends StatelessWidget {
     required this.items,
     required this.totalAmount,
   });
+
   Future<String?> showPinDialog(BuildContext context) async {
     final controller = TextEditingController();
 
@@ -50,7 +52,6 @@ class CheckoutScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
-
       appBar: AppBar(
         backgroundColor: const Color(0xFFE3350D),
         title: const Text("Checkout", style: TextStyle(color: Colors.white)),
@@ -100,7 +101,6 @@ class CheckoutScreen extends StatelessWidget {
                     "Total",
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-
                   Text(
                     "Rp $totalAmount",
                     style: const TextStyle(
@@ -112,6 +112,7 @@ class CheckoutScreen extends StatelessWidget {
                 ],
               ),
             ),
+
             const SizedBox(height: 16),
 
             SizedBox(
@@ -124,19 +125,19 @@ class CheckoutScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(16),
                   ),
                 ),
+
                 onPressed: () async {
+                  // 1. OTP SCREEN
                   final verified = await Navigator.push<bool>(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => AuthVerificationScreen(onVerified: () {}),
+                      builder: (_) => const AuthVerificationScreen(),
                     ),
                   );
 
                   if (verified != true) return;
 
-                  if (verified != true) return;
-                  if (verified != true) return;
-
+                  // 2. PIN WALLET
                   final pin = await showPinDialog(context);
                   if (pin == null) return;
 
@@ -158,11 +159,15 @@ class CheckoutScreen extends StatelessWidget {
                     return;
                   }
 
+                  // 3. PAYMENT
                   final success = await WalletService().pay(totalAmount);
 
                   if (!context.mounted) return;
 
                   if (success) {
+                    // 🔥 IMPORTANT: CLEAR CART
+                    await CartService().clearCart();
+
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text("Pembayaran berhasil")),
                     );
@@ -170,6 +175,7 @@ class CheckoutScreen extends StatelessWidget {
                     Navigator.popUntil(context, (route) => route.isFirst);
                   }
                 },
+
                 child: const Text(
                   "Pay With Pokemon Wallet",
                   style: TextStyle(
