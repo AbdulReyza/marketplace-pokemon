@@ -32,8 +32,10 @@ class AuthService {
     final user = credential.user!;
     final uid = user.uid;
 
+    // kirim email verifikasi
     await user.sendEmailVerification();
 
+    // simpan user
     await _firestore.collection('users').doc(uid).set({
       'name': name,
       'email': email,
@@ -41,11 +43,19 @@ class AuthService {
       'createdAt': Timestamp.now(),
     });
 
+    // buat wallet
     await _firestore.collection('wallets').doc(uid).set({
       'balance': 0,
       'pin': '123456',
       'createdAt': Timestamp.now(),
     });
+
+    // paksa logout setelah registrasi
+    await _auth.signOut();
+
+    throw Exception(
+      "Registrasi berhasil. Silakan verifikasi email terlebih dahulu lalu login kembali.",
+    );
   }
 
   Future<void> login({required String email, required String password}) async {
@@ -60,8 +70,16 @@ class AuthService {
 
     if (!user.emailVerified) {
       await _auth.signOut();
-      throw Exception("Email belum diverifikasi, cek email dulu");
+
+      throw Exception(
+        "Email belum diverifikasi. Silakan cek inbox atau folder spam.",
+      );
     }
+
+    // update status verified di firestore
+    await _firestore.collection('users').doc(user.uid).update({
+      'isVerified': true,
+    });
   }
 
   Future<void> logout() async {

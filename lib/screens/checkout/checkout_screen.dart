@@ -128,13 +128,11 @@ class CheckoutScreen extends StatelessWidget {
                   final verified = await Navigator.push<bool>(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => AuthVerificationScreen(
-                        onVerified: () {
-                          Navigator.pop(context, true);
-                        },
-                      ),
+                      builder: (_) => AuthVerificationScreen(onVerified: () {}),
                     ),
                   );
+
+                  if (verified != true) return;
 
                   if (verified != true) return;
                   if (verified != true) return;

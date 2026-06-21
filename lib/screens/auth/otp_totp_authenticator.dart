@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 
 class AuthVerificationScreen extends StatefulWidget {
@@ -11,22 +12,51 @@ class AuthVerificationScreen extends StatefulWidget {
 
 class _AuthVerificationScreenState extends State<AuthVerificationScreen> {
   final pinController = TextEditingController();
+
   bool loading = false;
+  int seconds = 30;
+  Timer? timer;
+
+  @override
+  void initState() {
+    super.initState();
+
+    timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (!mounted) return;
+
+      setState(() {
+        if (seconds > 0) {
+          seconds--;
+        } else {
+          seconds = 30;
+        }
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    timer?.cancel();
+    pinController.dispose();
+    super.dispose();
+  }
 
   void verify() async {
     setState(() => loading = true);
 
     await Future.delayed(const Duration(seconds: 1));
 
-    if (pinController.text == "123456") {
+    if (pinController.text.trim() == "123456") {
       Navigator.pop(context, true);
     } else {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text("PIN salah")));
+      ).showSnackBar(const SnackBar(content: Text("Authenticator code salah")));
     }
 
-    setState(() => loading = false);
+    if (mounted) {
+      setState(() => loading = false);
+    }
   }
 
   @override
@@ -59,50 +89,111 @@ class _AuthVerificationScreenState extends State<AuthVerificationScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  /// ICON
+                  /// AUTHENTICATOR CARD
                   Container(
-                    width: 90,
-                    height: 90,
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: const Color(0xFFE3350D).withOpacity(0.1),
+                      color: Colors.black87,
+                      borderRadius: BorderRadius.circular(20),
                     ),
-                    child: const Icon(
-                      Icons.security,
-                      size: 45,
-                      color: Color(0xFFE3350D),
+                    child: Column(
+                      children: [
+                        const Icon(
+                          Icons.shield,
+                          color: Colors.greenAccent,
+                          size: 50,
+                        ),
+
+                        const SizedBox(height: 10),
+
+                        const Text(
+                          "Google Authenticator",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        const Text(
+                          "123456",
+                          style: TextStyle(
+                            color: Colors.greenAccent,
+                            fontSize: 36,
+                            letterSpacing: 6,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+
+                        const SizedBox(height: 8),
+
+                        Text(
+                          "Expires in ${seconds}s",
+                          style: const TextStyle(color: Colors.white70),
+                        ),
+                      ],
                     ),
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  const Text(
-                    "Trainer Security Gate",
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                  ),
-
-                  const SizedBox(height: 6),
-
-                  Text(
-                    "Masukkan 6-digit kode authenticator",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.grey.shade600),
                   ),
 
                   const SizedBox(height: 20),
 
-                  /// INPUT
+                  const Text(
+                    "Authenticator Verification",
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  Text(
+                    "Masukkan kode dari Google Authenticator",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.grey.shade600),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.green.shade50,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Row(
+                      children: [
+                        Icon(Icons.verified_user, color: Colors.green),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            "Two-Factor Authentication Enabled",
+                            style: TextStyle(
+                              color: Colors.green,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  /// INPUT CODE
                   TextField(
                     controller: pinController,
                     keyboardType: TextInputType.number,
                     textAlign: TextAlign.center,
+                    maxLength: 6,
                     style: const TextStyle(
                       letterSpacing: 8,
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
                     decoration: InputDecoration(
-                      hintText: "------",
+                      counterText: "",
+                      hintText: "123456",
                       filled: true,
                       fillColor: Colors.grey.shade100,
                       border: OutlineInputBorder(
@@ -114,7 +205,7 @@ class _AuthVerificationScreenState extends State<AuthVerificationScreen> {
 
                   const SizedBox(height: 20),
 
-                  /// BUTTON
+                  /// VERIFY BUTTON
                   SizedBox(
                     width: double.infinity,
                     height: 52,
