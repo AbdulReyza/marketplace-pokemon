@@ -44,7 +44,7 @@ class _AuthVerificationScreenState extends State<AuthVerificationScreen> {
 
     await Future.delayed(const Duration(seconds: 1));
 
-    if (pinController.text.trim() == "254768") {
+    if (pinController.text.trim() == "715293") {
       Navigator.pop(context, true);
     } else {
       ScaffoldMessenger.of(
@@ -116,18 +116,6 @@ class _AuthVerificationScreenState extends State<AuthVerificationScreen> {
 
                         const SizedBox(height: 12),
 
-                        const Text(
-                          "254768",
-                          style: TextStyle(
-                            color: Colors.greenAccent,
-                            fontSize: 36,
-                            letterSpacing: 6,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-
-                        const SizedBox(height: 8),
-
                         Text(
                           "Expires in ${seconds}s",
                           style: const TextStyle(color: Colors.white70),
@@ -191,7 +179,6 @@ class _AuthVerificationScreenState extends State<AuthVerificationScreen> {
                     ),
                     decoration: InputDecoration(
                       counterText: "",
-                      hintText: "254768",
                       filled: true,
                       fillColor: Colors.grey.shade100,
                       border: OutlineInputBorder(
