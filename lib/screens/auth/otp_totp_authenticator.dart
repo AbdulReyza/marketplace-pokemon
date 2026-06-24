@@ -19,6 +19,9 @@ class _AuthVerificationScreenState extends State<AuthVerificationScreen> {
   void initState() {
     super.initState();
 
+    // Auto isi kode untuk demo/testing
+    pinController.text = "715293";
+
     timer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (!mounted) return;
 
@@ -111,6 +114,19 @@ class _AuthVerificationScreenState extends State<AuthVerificationScreen> {
                             color: Colors.white,
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
+                          ),
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        /// KODE DITAMPILKAN
+                        const Text(
+                          "715293",
+                          style: TextStyle(
+                            color: Colors.greenAccent,
+                            fontSize: 36,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 6,
                           ),
                         ),
 
