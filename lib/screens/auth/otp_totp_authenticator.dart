@@ -1,5 +1,9 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:otp/otp.dart';
 
 class AuthVerificationScreen extends StatefulWidget {
   const AuthVerificationScreen({super.key});
@@ -8,30 +12,50 @@ class AuthVerificationScreen extends StatefulWidget {
   State<AuthVerificationScreen> createState() => _AuthVerificationScreenState();
 }
 
+Future<String?> getSecret() async {
+  final uid = FirebaseAuth.instance.currentUser!.uid;
+
+  final doc = await FirebaseFirestore.instance
+      .collection('users')
+      .doc(uid)
+      .get();
+
+  return doc.data()?['totpSecret'];
+}
+
 class _AuthVerificationScreenState extends State<AuthVerificationScreen> {
   final pinController = TextEditingController();
 
   bool loading = false;
-  int seconds = 30;
+
   Timer? timer;
+  int remainingSeconds = 30;
 
   @override
   void initState() {
     super.initState();
+    startTotpTimer();
+  }
 
-    // Auto isi kode untuk demo/testing
-    pinController.text = "715293";
+  void startTotpTimer() {
+    updateRemainingSeconds();
 
     timer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (!mounted) return;
 
-      setState(() {
-        if (seconds > 0) {
-          seconds--;
-        } else {
-          seconds = 30;
-        }
-      });
+      updateRemainingSeconds();
+    });
+  }
+
+  void updateRemainingSeconds() {
+    final epochSeconds = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+
+    setState(() {
+      remainingSeconds = 30 - (epochSeconds % 30);
+
+      if (remainingSeconds == 30) {
+        remainingSeconds = 0;
+      }
     });
   }
 
@@ -42,17 +66,41 @@ class _AuthVerificationScreenState extends State<AuthVerificationScreen> {
     super.dispose();
   }
 
-  void verify() async {
+  Future<void> verify() async {
     setState(() => loading = true);
 
-    await Future.delayed(const Duration(seconds: 1));
+    try {
+      final secret = await getSecret();
 
-    if (pinController.text.trim() == "715293") {
-      Navigator.pop(context, true);
-    } else {
+      if (secret == null || secret.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Secret key tidak ditemukan")),
+        );
+
+        setState(() => loading = false);
+        return;
+      }
+
+      final currentCode = OTP.generateTOTPCodeString(
+        secret,
+        DateTime.now().millisecondsSinceEpoch,
+        interval: 30,
+        algorithm: Algorithm.SHA1,
+        isGoogle: true,
+      );
+
+      if (pinController.text.trim() == currentCode) {
+        if (!mounted) return;
+        Navigator.pop(context, true);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Authenticator code salah")),
+        );
+      }
+    } catch (e) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text("Authenticator code salah")));
+      ).showSnackBar(SnackBar(content: Text("Error: $e")));
     }
 
     if (mounted) {
@@ -62,6 +110,8 @@ class _AuthVerificationScreenState extends State<AuthVerificationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final progress = remainingSeconds / 30;
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -72,7 +122,7 @@ class _AuthVerificationScreenState extends State<AuthVerificationScreen> {
           ),
         ),
         child: Center(
-          child: Padding(
+          child: SingleChildScrollView(
             padding: const EdgeInsets.all(24),
             child: Container(
               padding: const EdgeInsets.all(24),
@@ -117,24 +167,33 @@ class _AuthVerificationScreenState extends State<AuthVerificationScreen> {
                           ),
                         ),
 
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 16),
 
-                        /// KODE DITAMPILKAN
                         const Text(
-                          "715293",
+                          "Open Google Authenticator",
+                          textAlign: TextAlign.center,
                           style: TextStyle(
                             color: Colors.greenAccent,
-                            fontSize: 36,
+                            fontSize: 20,
                             fontWeight: FontWeight.bold,
-                            letterSpacing: 6,
                           ),
                         ),
 
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 20),
+
+                        LinearProgressIndicator(
+                          value: progress,
+                          backgroundColor: Colors.white24,
+                        ),
+
+                        const SizedBox(height: 10),
 
                         Text(
-                          "Expires in ${seconds}s",
-                          style: const TextStyle(color: Colors.white70),
+                          "Code refresh in ${remainingSeconds}s",
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ],
                     ),
@@ -150,7 +209,7 @@ class _AuthVerificationScreenState extends State<AuthVerificationScreen> {
                   const SizedBox(height: 8),
 
                   Text(
-                    "Masukkan kode dari Google Authenticator",
+                    "Masukkan kode 6 digit dari Google Authenticator",
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Colors.grey.shade600),
                   ),
@@ -182,7 +241,6 @@ class _AuthVerificationScreenState extends State<AuthVerificationScreen> {
 
                   const SizedBox(height: 20),
 
-                  /// INPUT CODE
                   TextField(
                     controller: pinController,
                     keyboardType: TextInputType.number,
@@ -197,6 +255,7 @@ class _AuthVerificationScreenState extends State<AuthVerificationScreen> {
                       counterText: "",
                       filled: true,
                       fillColor: Colors.grey.shade100,
+                      hintText: "123456",
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
                         borderSide: BorderSide.none,
@@ -206,7 +265,6 @@ class _AuthVerificationScreenState extends State<AuthVerificationScreen> {
 
                   const SizedBox(height: 20),
 
-                  /// VERIFY BUTTON
                   SizedBox(
                     width: double.infinity,
                     height: 52,

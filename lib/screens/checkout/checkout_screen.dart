@@ -4,6 +4,7 @@ import '../../services/cart_services.dart';
 import '../../services/wallet_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../../services/order_service.dart';
 
 class CheckoutScreen extends StatelessWidget {
   final List<Map<String, dynamic>> items;
@@ -125,20 +126,12 @@ class CheckoutScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(16),
                   ),
                 ),
-
                 onPressed: () async {
-                  // 1. OTP SCREEN
-                  final verified = await Navigator.push<bool>(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const AuthVerificationScreen(),
-                    ),
-                  );
-
-                  if (verified != true) return;
-
-                  // 2. PIN WALLET
+                  // =====================
+                  // 1. PIN WALLET
+                  // =====================
                   final pin = await showPinDialog(context);
+
                   if (pin == null) return;
 
                   final uid = FirebaseAuth.instance.currentUser!.uid;
@@ -159,21 +152,54 @@ class CheckoutScreen extends StatelessWidget {
                     return;
                   }
 
+                  // =====================
+                  // 2. GOOGLE AUTHENTICATOR
+                  // =====================
+                  final verified = await Navigator.push<bool>(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const AuthVerificationScreen(),
+                    ),
+                  );
+
+                  if (verified != true) {
+                    return;
+                  }
+
+                  // =====================
                   // 3. PAYMENT
+                  // =====================
                   final success = await WalletService().pay(totalAmount);
 
                   if (!context.mounted) return;
 
-                  if (success) {
-                    // 🔥 IMPORTANT: CLEAR CART
-                    await CartService().clearCart();
-
+                  if (!success) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Pembayaran berhasil")),
+                      const SnackBar(content: Text("Saldo tidak mencukupi")),
                     );
-
-                    Navigator.popUntil(context, (route) => route.isFirst);
+                    return;
                   }
+
+                  // =====================
+                  // 4. CREATE ORDER
+                  // =====================
+                  await OrderService().createOrder(
+                    items: items,
+                    totalAmount: totalAmount,
+                  );
+
+                  // =====================
+                  // 5. CLEAR CART
+                  // =====================
+                  await CartService().clearCart();
+
+                  if (!context.mounted) return;
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Pembayaran berhasil")),
+                  );
+
+                  Navigator.popUntil(context, (route) => route.isFirst);
                 },
 
                 child: const Text(

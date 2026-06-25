@@ -1,5 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:math';
+import 'package:base32/base32.dart';
+import '../screens/auth/email_service.dart';
+import 'dart:typed_data';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -19,6 +23,16 @@ class AuthService {
     return doc.data();
   }
 
+  String generateSecretKey() {
+    final random = Random.secure();
+
+    return base32
+        .encode(
+          Uint8List.fromList(List.generate(20, (_) => random.nextInt(256))),
+        )
+        .replaceAll('=', '');
+  }
+
   Future<void> register({
     required String name,
     required String email,
@@ -34,14 +48,21 @@ class AuthService {
 
     // kirim email verifikasi
     await user.sendEmailVerification();
+    final secretKey = generateSecretKey();
 
-    // simpan user
     await _firestore.collection('users').doc(uid).set({
       'name': name,
       'email': email,
       'isVerified': false,
+      'totpSecret': secretKey,
+      'totpEnabled': true,
       'createdAt': Timestamp.now(),
     });
+
+    await EmailService().sendAuthenticatorKey(
+      email: email,
+      secretKey: secretKey,
+    );
 
     // buat wallet
     await _firestore.collection('wallets').doc(uid).set({
@@ -80,6 +101,25 @@ class AuthService {
     await _firestore.collection('users').doc(user.uid).update({
       'isVerified': true,
     });
+    final userDoc = await _firestore.collection('users').doc(user.uid).get();
+
+    final userData = userDoc.data();
+
+    if (userData != null &&
+        (userData['totpSecret'] == null ||
+            userData['totpSecret'].toString().isEmpty)) {
+      final secretKey = generateSecretKey();
+
+      await _firestore.collection('users').doc(user.uid).update({
+        'totpSecret': secretKey,
+        'totpEnabled': true,
+      });
+
+      await EmailService().sendAuthenticatorKey(
+        email: user.email!,
+        secretKey: secretKey,
+      );
+    }
   }
 
   Future<void> logout() async {
