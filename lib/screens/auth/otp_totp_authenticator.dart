@@ -255,7 +255,7 @@ class _AuthVerificationScreenState extends State<AuthVerificationScreen> {
                       counterText: "",
                       filled: true,
                       fillColor: Colors.grey.shade100,
-                      hintText: "123456",
+                      hintText: "......",
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
                         borderSide: BorderSide.none,

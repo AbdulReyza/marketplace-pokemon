@@ -10,6 +10,7 @@ import '../../widgets/product_card.dart';
 import '../transactions/transaction_screen.dart';
 import '../product/product_detail_screen.dart';
 import '../cart/cart_screen.dart';
+import '../profile/profile_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -235,8 +236,9 @@ class HomeScreen extends StatelessWidget {
               break;
 
             case 3:
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Profile belum dibuat')),
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ProfileScreen()),
               );
               break;
           }
