@@ -14,11 +14,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool showSecret = false;
 
   Future<Map<String, dynamic>?> getUserData() async {
-    final uid = FirebaseAuth.instance.currentUser!.uid;
+    final currentUser = FirebaseAuth.instance.currentUser;
+
+    if (currentUser == null) {
+      return null;
+    }
 
     final doc = await FirebaseFirestore.instance
         .collection('users')
-        .doc(uid)
+        .doc(currentUser.uid)
         .get();
 
     return doc.data();
@@ -31,8 +35,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: FutureBuilder<Map<String, dynamic>?>(
         future: getUserData(),
         builder: (context, snapshot) {
-          if (!snapshot.hasData) {
+          // Loading
+          if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
+          }
+
+          // Error Firestore
+          if (snapshot.hasError) {
+            return Center(
+              child: Text(
+                'Error: ${snapshot.error}',
+                style: const TextStyle(fontSize: 16),
+              ),
+            );
+          }
+
+          // User tidak ditemukan
+          if (!snapshot.hasData || snapshot.data == null) {
+            return const Center(
+              child: Text(
+                'User data not found',
+                style: TextStyle(fontSize: 16),
+              ),
+            );
           }
 
           final user = snapshot.data!;
@@ -40,70 +65,87 @@ class _ProfileScreenState extends State<ProfileScreen> {
           return SingleChildScrollView(
             child: Column(
               children: [
-                // HEADER
-                Positioned(
-                  top: 55,
-                  left: 16,
-                  child: CircleAvatar(
-                    backgroundColor: Colors.white24,
-                    child: IconButton(
-                      icon: const Icon(Icons.arrow_back, color: Colors.white),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ),
-                ),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.only(top: 70, bottom: 40),
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(35),
-                      bottomRight: Radius.circular(35),
-                    ),
-                  ),
-                  child: Column(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(5),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          shape: BoxShape.circle,
+                // ==========================
+                // HEADER + BACK BUTTON
+                // ==========================
+                Stack(
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.only(top: 70, bottom: 40),
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
                         ),
-                        child: const CircleAvatar(
-                          radius: 50,
-                          backgroundColor: Colors.white,
-                          child: Icon(
-                            Icons.person,
-                            size: 60,
-                            color: Color(0xFF4F46E5),
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(35),
+                          bottomRight: Radius.circular(35),
+                        ),
+                      ),
+                      child: Column(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(5),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const CircleAvatar(
+                              radius: 50,
+                              backgroundColor: Colors.white,
+                              child: Icon(
+                                Icons.person,
+                                size: 60,
+                                color: Color(0xFF4F46E5),
+                              ),
+                            ),
                           ),
+
+                          const SizedBox(height: 16),
+
+                          Text(
+                            user['name'] ?? '-',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+
+                          const SizedBox(height: 4),
+
+                          Text(
+                            user['email'] ?? '-',
+                            style: const TextStyle(color: Colors.white70),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    Positioned(
+                      top: 50,
+                      left: 16,
+                      child: CircleAvatar(
+                        backgroundColor: Colors.white24,
+                        child: IconButton(
+                          icon: const Icon(
+                            Icons.arrow_back,
+                            color: Colors.white,
+                          ),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
                         ),
                       ),
-
-                      const SizedBox(height: 16),
-
-                      Text(
-                        user['name'] ?? '-',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-
-                      Text(
-                        user['email'] ?? '-',
-                        style: const TextStyle(color: Colors.white70),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
 
+                // ==========================
+                // CONTENT
+                // ==========================
                 Padding(
                   padding: const EdgeInsets.all(20),
                   child: Column(
@@ -182,7 +224,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                       const SizedBox(height: 20),
 
-                      // SECRET CARD
+                      // SECRET KEY CARD
                       Container(
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
@@ -263,13 +305,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         ),
                                       );
 
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        const SnackBar(
-                                          content: Text("Secret copied"),
-                                        ),
-                                      );
+                                      if (mounted) {
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          const SnackBar(
+                                            content: Text("Secret copied"),
+                                          ),
+                                        );
+                                      }
                                     },
                                     icon: const Icon(Icons.copy),
                                     label: const Text("Copy"),

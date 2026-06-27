@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
-import '../auth/otp_totp_authenticator.dart';
+import 'dart:async'; // Tambah import dart:async
+// import '../auth/otp_totp_authenticator.dart';
 import '../../services/cart_services.dart';
-import '../../services/wallet_service.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+// import '../../services/wallet_service.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
 import '../../services/order_service.dart';
+import '../../services/deep_link_service.dart';
+import '../../services/payment_callback_service.dart'; // Tambah import payment callback
 
-class CheckoutScreen extends StatelessWidget {
+class CheckoutScreen extends StatefulWidget {
   final List<Map<String, dynamic>> items;
   final int totalAmount;
 
@@ -15,6 +18,42 @@ class CheckoutScreen extends StatelessWidget {
     required this.items,
     required this.totalAmount,
   });
+
+  @override
+  State<CheckoutScreen> createState() => _CheckoutScreenState();
+}
+
+class _CheckoutScreenState extends State<CheckoutScreen> {
+  StreamSubscription? _paymentSub; // Tambah properti StreamSubscription
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Inisialisasi stream listener untuk callback pembayaran
+    _paymentSub = PaymentCallbackService.instance.stream.listen((_) async {
+      await OrderService().createOrder(
+        items: widget.items, // Menggunakan widget.items
+        totalAmount: widget.totalAmount, // Menggunakan widget.totalAmount
+      );
+
+      await CartService().clearCart();
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Pembayaran berhasil")));
+
+      Navigator.popUntil(context, (route) => route.isFirst);
+    });
+  }
+
+  @override
+  void dispose() {
+    _paymentSub?.cancel(); // Cancel subscription saat widget dihancurkan
+    super.dispose();
+  }
 
   Future<String?> showPinDialog(BuildContext context) async {
     final controller = TextEditingController();
@@ -57,7 +96,6 @@ class CheckoutScreen extends StatelessWidget {
         backgroundColor: const Color(0xFFE3350D),
         title: const Text("Checkout", style: TextStyle(color: Colors.white)),
       ),
-
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -69,14 +107,12 @@ class CheckoutScreen extends StatelessWidget {
                 style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
             ),
-
             const SizedBox(height: 20),
-
             Expanded(
               child: ListView.builder(
-                itemCount: items.length,
+                itemCount: widget.items.length, // Menggunakan widget.items
                 itemBuilder: (context, index) {
-                  final item = items[index];
+                  final item = widget.items[index]; // Menggunakan widget.items
 
                   return Card(
                     child: ListTile(
@@ -88,7 +124,6 @@ class CheckoutScreen extends StatelessWidget {
                 },
               ),
             ),
-
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -103,7 +138,7 @@ class CheckoutScreen extends StatelessWidget {
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    "Rp $totalAmount",
+                    "Rp ${widget.totalAmount}", // Menggunakan widget.totalAmount
                     style: const TextStyle(
                       fontSize: 18,
                       color: Color(0xFFE3350D),
@@ -113,9 +148,7 @@ class CheckoutScreen extends StatelessWidget {
                 ],
               ),
             ),
-
             const SizedBox(height: 16),
-
             SizedBox(
               width: double.infinity,
               height: 55,
@@ -127,81 +160,20 @@ class CheckoutScreen extends StatelessWidget {
                   ),
                 ),
                 onPressed: () async {
-                  // =====================
-                  // 1. PIN WALLET
-                  // =====================
-                  final pin = await showPinDialog(context);
-
-                  if (pin == null) return;
-
-                  final uid = FirebaseAuth.instance.currentUser!.uid;
-
-                  final walletDoc = await FirebaseFirestore.instance
-                      .collection('wallets')
-                      .doc(uid)
-                      .get();
-
-                  final walletData = walletDoc.data();
-
-                  if (walletData == null) return;
-
-                  if (walletData['pin'] != pin) {
-                    ScaffoldMessenger.of(
-                      context,
-                    ).showSnackBar(const SnackBar(content: Text("PIN salah")));
-                    return;
-                  }
-
-                  // =====================
-                  // 2. GOOGLE AUTHENTICATOR
-                  // =====================
-                  final verified = await Navigator.push<bool>(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const AuthVerificationScreen(),
-                    ),
+                  final opened = await DeepLinkService.instance.openWallet(
+                    amount: widget.totalAmount,
                   );
 
-                  if (verified != true) {
-                    return;
-                  }
+                  if (!mounted) return;
 
-                  // =====================
-                  // 3. PAYMENT
-                  // =====================
-                  final success = await WalletService().pay(totalAmount);
-
-                  if (!context.mounted) return;
-
-                  if (!success) {
+                  if (!opened) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Saldo tidak mencukupi")),
+                      const SnackBar(
+                        content: Text("Pokemon Wallet belum terinstall"),
+                      ),
                     );
-                    return;
                   }
-
-                  // =====================
-                  // 4. CREATE ORDER
-                  // =====================
-                  await OrderService().createOrder(
-                    items: items,
-                    totalAmount: totalAmount,
-                  );
-
-                  // =====================
-                  // 5. CLEAR CART
-                  // =====================
-                  await CartService().clearCart();
-
-                  if (!context.mounted) return;
-
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Pembayaran berhasil")),
-                  );
-
-                  Navigator.popUntil(context, (route) => route.isFirst);
                 },
-
                 child: const Text(
                   "Pay With Pokemon Wallet",
                   style: TextStyle(

@@ -9,12 +9,21 @@ import 'providers/cart_provider.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/register_screen.dart';
 import 'screens/home/home_screen.dart';
+import './services/deep_link_service.dart';
+import './services/payment_callback_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
+  await DeepLinkService.instance.init();
+
+  DeepLinkService.instance.stream.listen((uri) {
+    if (uri.scheme == "pokemonmarket" && uri.host == "payment-success") {
+      PaymentCallbackService.instance.paymentSuccess();
+    }
+  });
   runApp(const MyApp());
 }
 
